@@ -1,0 +1,11 @@
+Rank,Algorithm,R2,RMSE,MAE,CV_R2_Mean,CV_R2_Std
+1,Gradient Boosting Regressor (Tuned),0.8121,14868.95,11025.86,0.7934,0.0255
+2,Random Forest Regressor (Tuned),0.8094,14974.62,10485.22,0.7972,0.0236
+3,Polynomial Regression (degree 2),0.7376,17571.1,13053.52,0.7049,0.0415
+4,K-Nearest Neighbors Regressor (Tuned),0.7118,18416.54,12834.05,0.692,0.0406
+5,Decision Tree Regressor (Tuned),0.701,18756.58,13153.73,0.7068,0.0274
+6,ElasticNet Regression,0.6694,19724.37,13995.98,0.6954,0.0424
+7,Ridge Regression,0.6652,19848.13,13895.03,0.6923,0.0461
+8,Lasso Regression,0.6644,19873.14,13946.88,0.6943,0.0458
+9,Linear Regression,0.6643,19874.3,13925.11,0.6917,0.0462
+10,Support Vector Regressor (Tuned),0.6643,19875.52,13796.4,0.6769,0.0533

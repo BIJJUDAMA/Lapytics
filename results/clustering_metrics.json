@@ -1,0 +1,261 @@
+{
+  "k_range": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "kmeans_elbow": [
+    48188.47,
+    44986.39,
+    42757.48,
+    40170.2,
+    38743.41,
+    37925.71,
+    35494.31,
+    34562.13,
+    33147.71
+  ],
+  "silhouette_scores": [
+    0.0969,
+    0.1308,
+    0.1049,
+    0.1568,
+    0.1294,
+    0.1177,
+    0.1459,
+    0.1459,
+    0.1695
+  ],
+  "davies_bouldin_scores": [
+    2.8765,
+    2.4783,
+    2.4182,
+    1.7319,
+    1.6861,
+    1.7778,
+    1.6218,
+    1.3563,
+    1.441
+  ],
+  "calinski_harabasz_scores": [
+    103.46,
+    99.5,
+    91.26,
+    92.73,
+    85.97,
+    77.57,
+    83.07,
+    78.74,
+    78.77
+  ],
+  "linkage_comparison": [
+    {
+      "Linkage": "ward",
+      "k": 2,
+      "Silhouette": 0.2001,
+      "Davies_Bouldin": 3.386,
+      "Calinski_Harabasz": 84.0
+    },
+    {
+      "Linkage": "ward",
+      "k": 3,
+      "Silhouette": 0.1004,
+      "Davies_Bouldin": 2.9192,
+      "Calinski_Harabasz": 80.64
+    },
+    {
+      "Linkage": "ward",
+      "k": 4,
+      "Silhouette": 0.115,
+      "Davies_Bouldin": 2.4929,
+      "Calinski_Harabasz": 82.14
+    },
+    {
+      "Linkage": "ward",
+      "k": 5,
+      "Silhouette": 0.1237,
+      "Davies_Bouldin": 2.0734,
+      "Calinski_Harabasz": 81.78
+    },
+    {
+      "Linkage": "ward",
+      "k": 6,
+      "Silhouette": 0.1411,
+      "Davies_Bouldin": 2.0856,
+      "Calinski_Harabasz": 81.62
+    },
+    {
+      "Linkage": "complete",
+      "k": 2,
+      "Silhouette": 0.6907,
+      "Davies_Bouldin": 0.2351,
+      "Calinski_Harabasz": 30.72
+    },
+    {
+      "Linkage": "complete",
+      "k": 3,
+      "Silhouette": 0.6917,
+      "Davies_Bouldin": 0.2318,
+      "Calinski_Harabasz": 31.76
+    },
+    {
+      "Linkage": "complete",
+      "k": 4,
+      "Silhouette": 0.6291,
+      "Davies_Bouldin": 0.3291,
+      "Calinski_Harabasz": 42.59
+    },
+    {
+      "Linkage": "complete",
+      "k": 5,
+      "Silhouette": 0.6325,
+      "Davies_Bouldin": 0.3166,
+      "Calinski_Harabasz": 42.95
+    },
+    {
+      "Linkage": "complete",
+      "k": 6,
+      "Silhouette": 0.6355,
+      "Davies_Bouldin": 0.3242,
+      "Calinski_Harabasz": 42.37
+    },
+    {
+      "Linkage": "average",
+      "k": 2,
+      "Silhouette": 0.6928,
+      "Davies_Bouldin": 0.229,
+      "Calinski_Harabasz": 31.27
+    },
+    {
+      "Linkage": "average",
+      "k": 3,
+      "Silhouette": 0.6917,
+      "Davies_Bouldin": 0.2318,
+      "Calinski_Harabasz": 31.76
+    },
+    {
+      "Linkage": "average",
+      "k": 4,
+      "Silhouette": 0.6588,
+      "Davies_Bouldin": 0.2534,
+      "Calinski_Harabasz": 34.5
+    },
+    {
+      "Linkage": "average",
+      "k": 5,
+      "Silhouette": 0.6413,
+      "Davies_Bouldin": 0.2799,
+      "Calinski_Harabasz": 35.12
+    },
+    {
+      "Linkage": "average",
+      "k": 6,
+      "Silhouette": 0.6415,
+      "Davies_Bouldin": 0.3007,
+      "Calinski_Harabasz": 35.76
+    },
+    {
+      "Linkage": "single",
+      "k": 2,
+      "Silhouette": 0.6928,
+      "Davies_Bouldin": 0.229,
+      "Calinski_Harabasz": 31.27
+    },
+    {
+      "Linkage": "single",
+      "k": 3,
+      "Silhouette": 0.6917,
+      "Davies_Bouldin": 0.2318,
+      "Calinski_Harabasz": 31.76
+    },
+    {
+      "Linkage": "single",
+      "k": 4,
+      "Silhouette": 0.6588,
+      "Davies_Bouldin": 0.2534,
+      "Calinski_Harabasz": 34.5
+    },
+    {
+      "Linkage": "single",
+      "k": 5,
+      "Silhouette": 0.6413,
+      "Davies_Bouldin": 0.2799,
+      "Calinski_Harabasz": 35.12
+    },
+    {
+      "Linkage": "single",
+      "k": 6,
+      "Silhouette": 0.6415,
+      "Davies_Bouldin": 0.3007,
+      "Calinski_Harabasz": 35.76
+    }
+  ],
+  "pca_explained_variance_ratio": [
+    0.1136,
+    0.0877
+  ],
+  "cluster_profiles": [
+    {
+      "Cluster": 0,
+      "Count": 113,
+      "Percentage": 9.1,
+      "Avg_RAM_GB": 12.6,
+      "Median_RAM_GB": 8.0,
+      "Avg_Weight_kg": 1.54,
+      "Avg_Storage_GB": 495.0,
+      "Avg_PPI": 249.5,
+      "SSD_Percentage": 88.5,
+      "Touchscreen_Percentage": 54.9,
+      "IPS_Percentage": 55.8,
+      "Summary": "Mainstream Productivity & All-Rounder Notebooks (Balanced specs)"
+    },
+    {
+      "Cluster": 1,
+      "Count": 381,
+      "Percentage": 30.7,
+      "Avg_RAM_GB": 6.1,
+      "Median_RAM_GB": 4.0,
+      "Avg_Weight_kg": 2.21,
+      "Avg_Storage_GB": 934.0,
+      "Avg_PPI": 119.8,
+      "SSD_Percentage": 12.9,
+      "Touchscreen_Percentage": 6.0,
+      "IPS_Percentage": 10.0,
+      "Summary": "Mainstream Productivity & All-Rounder Notebooks (Balanced specs)"
+    },
+    {
+      "Cluster": 2,
+      "Count": 556,
+      "Percentage": 44.7,
+      "Avg_RAM_GB": 7.5,
+      "Median_RAM_GB": 8.0,
+      "Avg_Weight_kg": 1.74,
+      "Avg_Storage_GB": 253.0,
+      "Avg_PPI": 146.4,
+      "SSD_Percentage": 89.4,
+      "Touchscreen_Percentage": 16.7,
+      "IPS_Percentage": 29.9,
+      "Summary": "Mainstream Productivity & All-Rounder Notebooks (Balanced specs)"
+    },
+    {
+      "Cluster": 3,
+      "Count": 193,
+      "Percentage": 15.5,
+      "Avg_RAM_GB": 13.9,
+      "Median_RAM_GB": 16.0,
+      "Avg_Weight_kg": 2.81,
+      "Avg_Storage_GB": 1146.0,
+      "Avg_PPI": 138.5,
+      "SSD_Percentage": 87.6,
+      "Touchscreen_Percentage": 1.6,
+      "IPS_Percentage": 43.5,
+      "Summary": "High-Performance Workstations & Gaming (Large RAM, heavier chassis)"
+    }
+  ]
+}
