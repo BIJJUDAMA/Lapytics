@@ -43,3 +43,165 @@ Run `pre_processing.ipynb` first. Then run the three track notebooks independent
 Rows in each CSV: `1,243`
 
 The supplied CSVs contain `42` feature columns. The assignment text refers to 29 features, but one-hot encoding expands the supplied data to 42 columns. Use all 42 columns together as the feature matrix. Do not train one model per column.
+
+---
+
+# Laptop Intelligence Dashboard & Deployment
+
+A production-quality, interactive multi-page Streamlit web application providing continuous laptop price prediction (Regression), market tier classification (Classification), unsupervised architecture segmentation (Clustering), and an interactive model laboratory.
+
+## Application Features
+
+- **Laptop Price Predictor (Regression)**:
+  - Interactive specification form supporting manufacturer, form factor, OS, RAM, screen size, resolution, PPI, and storage.
+  - Generates estimated market valuations in Indian Rupees (₹).
+  - Integrates 10 trained regression pipelines (Gradient Boosting Tuned: R² = 0.8121, Random Forest Tuned: R² = 0.8094, etc.).
+  - Side-by-side comparison mode allowing price delta calculations between two configurations.
+- **Laptop Price Classification (Classification)**:
+  - Predicts 4 market price tiers (`Budget`, `Mid-range`, `Premium`, `Flagship`).
+  - Displays predicted class confidence probabilities via interactive Plotly charts.
+  - Benchmarks 10 classification algorithms with interactive confusion matrices and class distributions.
+- **Laptop Clustering & Market Segmentation (Unsupervised)**:
+  - Discovers latent laptop segments using K-Means and Agglomerative Hierarchical Clustering.
+  - Zero target leakage: strictly operates on the 42 intrinsic hardware features without `price` or `price_category`.
+  - 2D interactive PCA and t-SNE scatter plots with hover inspection.
+  - Elbow curves, Silhouette scores, Davies-Bouldin, and Calinski-Harabasz metrics across cluster counts ($k=2..10$).
+  - Automated descriptive summaries for discovered clusters.
+- **Model Laboratory**:
+  - Full leaderboard benchmarks across all three ML tracks.
+  - Diagnostics: Actual vs. Predicted, Residual plots, and Feature Importance rankings.
+  - Transparent provenance distinguishing notebook-origin metrics from standalone script extensions.
+  - Read-only SHA-256 notebook integrity verification table.
+
+## Repository Architecture
+
+```text
+ML_Capstone/
+├── app.py                             # Main Streamlit dashboard landing page
+├── pages/
+│   ├── 1_Price_Predictor.py           # Regression price prediction interface
+│   ├── 2_Price_Classification.py      # Price tier classification interface
+│   ├── 3_Laptop_Clustering.py         # Unsupervised clustering and segmentation
+│   └── 4_Model_Laboratory.py          # Model evaluation, diagnostics & leaderboards
+├── src/
+│   ├── __init__.py
+│   ├── config.py                      # Feature schemas, bounds & hashes
+│   ├── data_loader.py                 # Cached data loading & schema validation
+│   ├── validation.py                  # User input validation & 42-feature vector builder
+│   ├── model_registry.py              # Model discovery and lazy artifact loader
+│   ├── inference.py                   # Prediction pipelines & INR formatting
+│   └── visualization.py               # Plotly interactive charting utilities
+├── scripts/
+│   ├── export_models.py               # Standalone model training & serialization script
+│   ├── generate_evaluation_results.py # Leaderboard and metrics evaluation script
+│   └── prepare_clustering.py          # Clustering models & diagnostics preparation
+├── models/
+│   ├── regression/                    # Trained regression pipelines (.joblib)
+│   ├── classification/                # Trained classification pipelines (.joblib)
+│   └── clustering/                    # Scaler, PCA, and KMeans models (.joblib)
+├── results/
+│   ├── regression_metrics.csv         # Verified regression metrics
+│   ├── classification_metrics.csv     # Verified classification metrics
+│   ├── classification_confusion_matrices.json
+│   ├── clustering_metrics.json        # Clustering diagnostics & profiles
+│   ├── clustering_projections.csv     # 2D PCA & t-SNE coordinates
+│   └── clustering_summary.csv
+├── tests/
+│   ├── test_audit_and_config.py
+│   ├── test_data_loading.py
+│   ├── test_validation.py
+│   ├── test_inference.py
+│   ├── test_clustering.py
+│   └── test_app_structure.py
+├── .streamlit/
+│   └── config.toml                    # Streamlit dark theme configuration
+├── conftest.py                        # Test runner path configuration
+├── requirements.txt                   # Pinned application dependencies
+├── .gitignore                         # Git exclusion rules
+└── notebooks/                         # [READ-ONLY] Research notebooks
+    ├── classification.ipynb
+    ├── classification_10_algorithms.ipynb
+    ├── clustering.ipynb
+    ├── pre_processing.ipynb
+    ├── Regression_algorithms_10.ipynb
+    └── regression_first_5_algorithms.ipynb
+```
+
+## Local Setup and Execution
+
+### 1. Prerequisites
+- Python 3.10 to 3.12.
+
+### 2. Installation
+Clone the repository and install the dependencies:
+```bash
+git clone https://github.com/BIJJUDAMA/ML_Capstone.git
+cd ML_Capstone
+python -m pip install -r requirements.txt
+```
+
+### 3. Reproducing Models and Metrics
+All model artifacts and metric tables can be reproduced independently of the Jupyter notebooks at any time:
+```bash
+# 1. Train and export regression and classification pipelines
+python scripts/export_models.py
+
+# 2. Generate evaluation metrics and leaderboards
+python scripts/generate_evaluation_results.py
+
+# 3. Prepare unsupervised clustering, PCA projections, and diagnostics
+python scripts/prepare_clustering.py
+```
+
+### 4. Running the Dashboard
+Launch the Streamlit web application:
+```bash
+streamlit run app.py
+```
+Open your browser at `http://localhost:8501`.
+
+## Testing and Verification
+
+Run the test suite using `pytest`:
+```bash
+python -m pytest -v
+```
+The test suite validates:
+- Notebook SHA-256 hash preservation.
+- Dataset schemas, shapes (1,243 rows, 42 features), and zero null values.
+- Zero target leakage in clustering datasets and pipelines.
+- User input boundary checks and feature vector construction.
+- Model loading, inference, and INR currency formatting.
+- Streamlit application and page rendering without runtime exceptions.
+
+## Model Leaderboard Summary
+
+### Regression (Test Set Metrics)
+| Rank | Algorithm | R² Score | RMSE (₹) | MAE (₹) |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | **Gradient Boosting Regressor (Tuned)** | **0.8121** | **₹14,869** | **₹11,026** |
+| 2 | **Random Forest Regressor (Tuned)** | 0.8094 | ₹14,975 | ₹10,485 |
+| 3 | Polynomial Regression (degree 2) | 0.7376 | ₹17,571 | ₹13,054 |
+| 4 | K-Nearest Neighbors Regressor (Tuned) | 0.7118 | ₹18,417 | ₹12,834 |
+| 5 | Decision Tree Regressor (Tuned) | 0.7010 | ₹18,757 | ₹13,154 |
+| 6 | ElasticNet Regression | 0.6694 | ₹19,724 | ₹13,996 |
+| 7 | Ridge Regression | 0.6652 | ₹19,848 | ₹13,895 |
+| 8 | Lasso Regression | 0.6644 | ₹19,873 | ₹13,947 |
+| 9 | Linear Regression | 0.6643 | ₹19,874 | ₹13,925 |
+| 10 | Support Vector Regressor (Tuned) | 0.6643 | ₹19,876 | ₹13,796 |
+
+### Classification (Test Set Metrics)
+| Rank | Algorithm | Accuracy | Weighted F1 | Precision | Recall |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | **Random Forest** | **70.68%** | **0.7080** | 0.7171 | 0.7068 |
+| 2 | Bagging | 70.28% | 0.7009 | 0.7003 | 0.7028 |
+| 3 | **SVC** | 69.08% | 0.6861 | 0.6920 | 0.6908 |
+| 4 | Gradient Boosting | 67.87% | 0.6749 | 0.6776 | 0.6787 |
+| 5 | Multi-layer Perceptron | 67.87% | 0.6767 | 0.6812 | 0.6787 |
+| 6 | Logistic Regression | 65.06% | 0.6440 | 0.6411 | 0.6506 |
+| 7 | KNN | 64.66% | 0.6401 | 0.6452 | 0.6466 |
+| 8 | Decision Tree | 63.86% | 0.6155 | 0.6353 | 0.6386 |
+| 9 | AdaBoost | 63.86% | 0.6302 | 0.6332 | 0.6386 |
+| 10 | Gaussian Naive Bayes | 39.36% | 0.3216 | 0.5607 | 0.3936 |
+
+
