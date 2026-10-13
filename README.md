@@ -204,4 +204,52 @@ The test suite validates:
 | 9 | AdaBoost | 63.86% | 0.6302 | 0.6332 | 0.6386 |
 | 10 | Gaussian Naive Bayes | 39.36% | 0.3216 | 0.5607 | 0.3936 |
 
+### Clustering (Unsupervised Metrics & Segmentation)
+
+Unsupervised market segmentation is performed strictly on the 42 intrinsic hardware features with zero target leakage (`price` and `price_category` excluded).
+
+#### Algorithm & Linkage Comparison ($k=4$)
+| Method / Linkage | Clusters ($k$) | Silhouette Score (↑) | Davies-Bouldin Index (↓) | Calinski-Harabasz Index (↑) |
+| :--- | :---: | :---: | :---: | :---: |
+| **K-Means (Partitioning)** | 4 | 0.1049 | 2.4182 | 91.26 |
+| **Agglomerative (Ward Linkage)** | 4 | 0.1150 | 2.4929 | 82.14 |
+| **Agglomerative (Complete Linkage)** | 4 | 0.6291 | 0.3291 | 42.59 |
+| **Agglomerative (Average Linkage)** | 4 | 0.6588 | 0.2534 | 34.50 |
+
+#### Discovered Hardware Archetype Profiles ($k=4$, K-Means)
+| Cluster | Share | Count | Avg RAM | Avg Weight | Avg Storage | SSD % | Primary Archetype |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **0** | 9.1% | 113 | 12.6 GB | 1.54 kg | 495 GB | 88.5% | Premium Ultraportable / High-PPI (Touchscreen & Retina) |
+| **1** | 30.7% | 381 | 6.1 GB | 2.21 kg | 934 GB | 12.9% | Budget Desktop Replacement (High Capacity HDD) |
+| **2** | 44.7% | 556 | 7.5 GB | 1.74 kg | 253 GB | 89.4% | Mainstream Everyday Productivity (Fast SSD, Balanced) |
+| **3** | 15.5% | 193 | 13.9 GB | 2.81 kg | 1,146 GB | 87.6% | High-Performance Workstation & Gaming (Heavy chassis) |
+
+## Deployment Instructions
+
+### Streamlit Community Cloud (Recommended)
+1. Fork or push the repository to GitHub.
+2. Sign in to [share.streamlit.io](https://share.streamlit.io/).
+3. Click **New app**.
+4. Select repository: `BIJJUDAMA/ML_Capstone`, branch: `main`, main file path: `app.py`.
+5. Under Advanced Settings, select Python 3.10, 3.11, or 3.12.
+6. Click **Deploy**. The application will automatically install dependencies from `requirements.txt` and launch.
+
+### Hugging Face Spaces (Alternative)
+1. Create a new Space on [Hugging Face](https://huggingface.co/spaces).
+2. Choose **Streamlit** SDK.
+3. Push the repository files to the Space git remote.
+
+## Notebook Integrity Assurance
+
+All original Jupyter research notebooks are located in `notebooks/` and remain strictly read-only artifacts. Their SHA-256 hashes are verified by automated tests:
+
+| Notebook | SHA-256 Checksum | Status |
+| :--- | :--- | :--- |
+| `notebooks/classification.ipynb` | `767AB5C5D575B6837F1AD61ABC349B63610DA71F246D4A2BB873AF5399AC7C87` | Read-Only |
+| `notebooks/classification_10_algorithms.ipynb` | `DA57C91281D871DE94A358235E901B8427C3F17922DA7B49C9D8E94D47FAD2BE` | Read-Only |
+| `notebooks/clustering.ipynb` | `3A8FDDF90B5505B6008600B4A36D0FDBE172F53CD766798F5A454672B41337BC` | Read-Only |
+| `notebooks/pre_processing.ipynb` | `F7822DE42521ECC3FA26213FCE98E9564D643D658139A8ACD6A22DB54376CA81` | Read-Only |
+| `notebooks/Regression_algorithms_10.ipynb` | `2F12499D72172772ECB094B52C180885255BBB012CD7BBFC901C079FD97391B9` | Read-Only |
+| `notebooks/regression_first_5_algorithms.ipynb` | `C652045DA75EA04DEEBB2C268C29ED025864588F04E3FF50ED73237D1173DF5A` | Read-Only |
+
 
