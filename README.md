@@ -71,7 +71,6 @@ A production-quality, interactive multi-page Streamlit web application providing
   - Full leaderboard benchmarks across all three ML tracks.
   - Diagnostics: Actual vs. Predicted, Residual plots, and Feature Importance rankings.
   - Transparent provenance distinguishing notebook-origin metrics from standalone script extensions.
-  - Read-only SHA-256 notebook integrity verification table.
 
 ## Repository Architecture
 
@@ -167,7 +166,6 @@ Run the test suite using `pytest`:
 python -m pytest -v
 ```
 The test suite validates:
-- Notebook SHA-256 hash preservation.
 - Dataset schemas, shapes (1,243 rows, 42 features), and zero null values.
 - Zero target leakage in clustering datasets and pipelines.
 - User input boundary checks and feature vector construction.
@@ -238,18 +236,5 @@ Unsupervised market segmentation is performed strictly on the 42 intrinsic hardw
 1. Create a new Space on [Hugging Face](https://huggingface.co/spaces).
 2. Choose **Streamlit** SDK.
 3. Push the repository files to the Space git remote.
-
-## Notebook Integrity Assurance
-
-All original Jupyter research notebooks are located in `notebooks/` and remain strictly read-only artifacts. Their SHA-256 hashes are verified by automated tests:
-
-| Notebook | SHA-256 Checksum | Status |
-| :--- | :--- | :--- |
-| `notebooks/classification.ipynb` | `767AB5C5D575B6837F1AD61ABC349B63610DA71F246D4A2BB873AF5399AC7C87` | Read-Only |
-| `notebooks/classification_10_algorithms.ipynb` | `DA57C91281D871DE94A358235E901B8427C3F17922DA7B49C9D8E94D47FAD2BE` | Read-Only |
-| `notebooks/clustering.ipynb` | `E31D48E1CB38BB32A8DC7FE2BA26EAB9E63729A82F2CB02C106C42AA6353E015` | Read-Only |
-| `notebooks/pre_processing.ipynb` | `F7822DE42521ECC3FA26213FCE98E9564D643D658139A8ACD6A22DB54376CA81` | Read-Only |
-| `notebooks/Regression_algorithms_10.ipynb` | `2F12499D72172772ECB094B52C180885255BBB012CD7BBFC901C079FD97391B9` | Read-Only |
-| `notebooks/regression_first_5_algorithms.ipynb` | `C652045DA75EA04DEEBB2C268C29ED025864588F04E3FF50ED73237D1173DF5A` | Read-Only |
 
 
