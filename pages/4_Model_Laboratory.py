@@ -1,11 +1,10 @@
 import json
-import hashlib
 import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.config import DATA_DIR, RANDOM_STATE, RESULTS_DIR, NOTEBOOK_HASHES, BASE_DIR, NOTEBOOKS_DIR
+from src.config import DATA_DIR, RANDOM_STATE, RESULTS_DIR
 from src.data_loader import (
     load_regression_metrics,
     load_classification_metrics,
@@ -35,16 +34,15 @@ apply_custom_css()
 
 render_page_header(
     title="Model Laboratory",
-    subtitle="Full architectural benchmarking, test set diagnostics, confusion matrices, and cryptographic provenance verification.",
+    subtitle="Full architectural benchmarking, test set diagnostics, and confusion matrices.",
     icon_name="flask-conical",
-    eyebrow="Evaluation & Provenance Center"
+    eyebrow="Evaluation & Diagnostics Center"
 )
 
-tab_reg, tab_clf, tab_clust, tab_prov = st.tabs([
+tab_reg, tab_clf, tab_clust = st.tabs([
     "Regression Benchmarks",
     "Classification Benchmarks",
-    "Clustering Diagnostics",
-    "Provenance & Integrity"
+    "Clustering Diagnostics"
 ])
 
 # ----------------- REGRESSION TAB -----------------
@@ -152,33 +150,3 @@ with tab_clust:
         st.markdown("#### Agglomerative Hierarchical Linkage Comparison")
         link_df = pd.DataFrame(clust_metrics.get("linkage_comparison", []))
         st.dataframe(link_df, use_container_width=True)
-
-
-# ----------------- PROVENANCE & INTEGRITY TAB -----------------
-with tab_prov:
-    render_section_header("Cryptographic Integrity & Provenance Verification", icon_name="shield-check")
-
-    with st.container(border=True):
-        st.markdown("#### Provenance Standards")
-        st.markdown("""
-To ensure complete academic transparency:
-- **Notebook Immutability**: Existing research notebooks remain completely unmodified and read-only.
-- **Notebook Alignment**: Results reproduce experiments from `Regression_algorithms_10.ipynb` and `classification_10_algorithms.ipynb`.
-- **Consistent Split Protocol**: Evaluated under the exact same split protocol (`test_size=0.20, random_state=42`).
-- **Zero Target Leakage**: Clustering was executed without access to continuous price or discrete category labels.
-        """)
-
-    st.markdown("#### Live Notebook SHA-256 Checksums")
-
-    hash_rows = []
-    for nb_name, expected_hash in NOTEBOOK_HASHES.items():
-        nb_path = NOTEBOOKS_DIR / nb_name if (NOTEBOOKS_DIR / nb_name).exists() else (BASE_DIR / nb_name)
-        if nb_path.exists():
-            actual = hashlib.sha256(nb_path.read_bytes()).hexdigest().upper()
-            status = "MATCH (Untouched)" if actual == expected_hash else "MODIFIED"
-        else:
-            actual = "FILE NOT FOUND"
-            status = "MISSING"
-        hash_rows.append({"Notebook": f"notebooks/{nb_name}", "SHA-256 Hash": actual, "Integrity Status": status})
-
-    st.dataframe(pd.DataFrame(hash_rows), use_container_width=True)

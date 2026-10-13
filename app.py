@@ -110,7 +110,7 @@ with st.container(border=True):
     lab_col1, lab_col2 = st.columns([3, 1])
     with lab_col1:
         st.markdown(f"#### {lucide_icon('flask-conical', size=18, color='#FBBF24')} Benchmarking & Architectural Transparency", unsafe_allow_html=True)
-        st.write("Inspect all 10 regression algorithms, 10 classification models, cross-validation stability, diagnostic residual analysis, and cryptographic SHA-256 notebook integrity verifications.")
+        st.write("Inspect all 10 regression algorithms, 10 classification models, cross-validation stability, diagnostic residual analysis, and multi-class confusion matrices.")
     with lab_col2:
         st.write("")
         st.page_link("pages/4_Model_Laboratory.py", label="Launch Model Lab →")

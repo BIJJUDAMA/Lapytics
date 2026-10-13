@@ -70,7 +70,7 @@ A production-quality, interactive multi-page Streamlit web application providing
 - **Model Laboratory**:
   - Full leaderboard benchmarks across all three ML tracks.
   - Diagnostics: Actual vs. Predicted, Residual plots, and Feature Importance rankings.
-  - Transparent provenance distinguishing notebook-origin metrics from standalone script extensions.
+  - Multi-class confusion matrices and cross-algorithm comparative charts.
 
 ## Repository Architecture
 
