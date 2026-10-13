@@ -112,6 +112,8 @@ ML_Capstone/
 │   ├── test_inference.py
 │   ├── test_clustering.py
 │   └── test_app_structure.py
+├── docs/
+│   └── algorithm_analysis.md          # In-depth dataset-to-algorithm performance rationale
 ├── .streamlit/
 │   └── config.toml                    # Streamlit dark theme configuration
 ├── conftest.py                        # Test runner path configuration
@@ -171,6 +173,9 @@ The test suite validates:
 - User input boundary checks and feature vector construction.
 - Model loading, inference, and INR currency formatting.
 - Streamlit application and page rendering without runtime exceptions.
+
+> [!NOTE]
+> For an exhaustive mathematical and dataset-driven analysis explaining why specific models won or failed across classification, clustering, and regression (e.g., non-linear boolean rules, variance reduction, and conditional independence violations), refer to [docs/algorithm_analysis.md](docs/algorithm_analysis.md).
 
 ## Model Leaderboard Summary
 
