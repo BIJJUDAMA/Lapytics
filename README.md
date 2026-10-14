@@ -113,7 +113,10 @@ ML_Capstone/
 │   ├── test_clustering.py
 │   └── test_app_structure.py
 ├── docs/
-│   └── algorithm_analysis.md          # In-depth dataset-to-algorithm performance rationale
+│   ├── algorithm_analysis.md                  # Master dataset-to-algorithm comparative study
+│   ├── comparative_case_study_regression.md   # Deep-dive case study across 10 regression algorithms
+│   ├── comparative_case_study_classification.md # Deep-dive case study across 10 classification algorithms
+│   └── comparative_case_study_clustering.md   # Deep-dive case study on clustering & hardware archetypes
 ├── .streamlit/
 │   └── config.toml                    # Streamlit dark theme configuration
 ├── conftest.py                        # Test runner path configuration
@@ -175,7 +178,11 @@ The test suite validates:
 - Streamlit application and page rendering without runtime exceptions.
 
 > [!NOTE]
-> For an exhaustive mathematical and dataset-driven analysis explaining why specific models won or failed across classification, clustering, and regression (e.g., non-linear boolean rules, variance reduction, and conditional independence violations), refer to [docs/algorithm_analysis.md](docs/algorithm_analysis.md).
+> For an exhaustive comparative case study explaining why specific algorithms succeeded or failed based on dataset geometry, non-linear pricing rules, and feature collinearity, explore the dedicated documentation suite:
+> - 📘 [Master Algorithm Analysis & Cross-Paradigm Synthesis](docs/algorithm_analysis.md)
+> - 📊 [Regression Comparative Case Study (10 Architectures)](docs/comparative_case_study_regression.md)
+> - 🏷️ [Classification Comparative Case Study (10 Architectures)](docs/comparative_case_study_classification.md)
+> - 🔍 [Clustering & Archetypes Comparative Case Study (Linkages & k=2..10)](docs/comparative_case_study_clustering.md)
 
 ## Model Leaderboard Summary
 
