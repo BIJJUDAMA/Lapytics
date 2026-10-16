@@ -62,11 +62,15 @@ graph TD
 ---
 
 ### 1. Gradient Boosting Regressor (Tuned) — Rank 1 (Winner)
-* **Mathematical Objective**:
-  $$\min_{f_M} \sum_{i=1}^N L(y_i, f_M(\mathbf{x}_i)), \quad f_m(\mathbf{x}) = f_{m-1}(\mathbf{x}) + \gamma_m h_m(\mathbf{x})$$
+- **Mathematical Objective**:
+
+$$
+\min_{f_M} \sum_{i=1}^N L(y_i, f_M(\mathbf{x}_i)), \quad f_m(\mathbf{x}) = f_{m-1}(\mathbf{x}) + \gamma_m h_m(\mathbf{x})
+$$
+
   where $h_m(\mathbf{x})$ fits pseudo-residuals $r_{im} = -\left[\frac{\partial L(y_i, f(\mathbf{x}_i))}{\partial f(\mathbf{x}_i)}\right]_{f=f_{m-1}}$.
-* **Hyperparameters**: `n_estimators=200`, `learning_rate=0.08`, `max_depth=4`, `subsample=0.85`.
-* **Why It Won on This Dataset**:
+- **Hyperparameters**: `n_estimators=200`, `learning_rate=0.08`, `max_depth=4`, `subsample=0.85`.
+- **Why It Won on This Dataset**:
   1. **Residual Gradient Correction**: Laptop pricing contains structured secondary effects. The initial shallow trees capture bulk specs (e.g., RAM $\ge 16$ GB $\implies$ +₹35,000). Successive boosting iterations specifically target nuanced pricing residuals—such as the premium of an IPS display on a thin-and-light chassis vs. an IPS display on a budget workstation.
   2. **Controlled Tree Depth (`max_depth=4`)**: Limiting tree depth prevents memorization of single noisy listings while allowing up to 4-way non-linear interactions (e.g., `ram` $\times$ `has_ssd` $\times$ `company_Apple` $\times$ `ppi`).
   3. **Gradient Shrinkage & Subsampling**: Stochastically sampling 85% of training samples at each step dampens gradient variance and prevents overfitting to the small $N=994$ training set.
@@ -74,79 +78,113 @@ graph TD
 ---
 
 ### 2. Random Forest Regressor (Tuned) — Rank 2 (Runner-Up)
-* **Mathematical Objective**:
-  $$\hat{f}_{\text{RF}}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^B T_b(\mathbf{x}; \Theta_b)$$
+- **Mathematical Objective**:
+
+$$
+\hat{f}_{\text{RF}}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^B T_b(\mathbf{x}; \Theta_b)
+$$
+
   where each tree $T_b$ is trained on a bootstrap sample $\mathcal{D}_b \sim \mathcal{D}$ and splits on a random feature subset $m \approx \sqrt{D} \approx 6$.
-* **Hyperparameters**: `n_estimators=300`, `max_depth=16`, `min_samples_split=4`, `min_samples_leaf=2`.
-* **Why It Succeeded**:
+- **Hyperparameters**: `n_estimators=300`, `max_depth=16`, `min_samples_split=4`, `min_samples_leaf=2`.
+- **Why It Succeeded**:
   1. **Lowest Test MAE (₹10,485.22)**: While Gradient Boosting edged ahead on $R^2$ by minimizing squared errors, Random Forest produced the lowest median absolute error across the mainstream price range (₹30,000 to ₹90,000).
   2. **Extreme Resilience to Outliers**: Extreme luxury configurations (e.g., dual-storage workstations priced at ₹300,000) affect individual terminal leaves in only a fraction of trees, rather than skewing global loss gradients.
-* **Why It Finished 2nd to Gradient Boosting**:
-  Because trees in Random Forest are trained independently, they cannot perform adaptive error correction. In the extreme upper price tail ($y > ₹200,000$), Random Forest predictions are bounded by the maximum leaf mean seen in bootstrap bags, leading to systematic under-prediction of record-setting flagship machines.
+- **Why It Finished 2nd to Gradient Boosting**:
+  Because trees in Random Forest are trained independently, they cannot perform adaptive error correction. In the extreme upper price tail ($y \gt ₹200,000$), Random Forest predictions are bounded by the maximum leaf mean seen in bootstrap bags, leading to systematic under-prediction of record-setting flagship machines.
 
 ---
 
 ### 3. Polynomial Regression (Degree 2) — Rank 3
-* **Mathematical Objective**:
-  $$\hat{y} = \mathbf{w}^T \phi_2(\mathbf{x}) + b, \quad \phi_2(\mathbf{x}) = [1, x_1, \dots, x_D, x_1^2, x_1 x_2, \dots, x_D^2]$$
-* **Dimensionality Explosion**:
-  Expanding 42 features into degree-2 monomials creates:
-  $$M = \frac{(42 + 2)!}{42! \, 2!} - 1 = \frac{44 \times 43}{2} - 1 = 945 \text{ interaction terms}$$
-* **Why It Improved Over Linear OLS ($R^2: 0.6643 \to 0.7376$)**:
+- **Mathematical Objective**:
+
+$$
+\hat{y} = \mathbf{w}^T \phi_2(\mathbf{x}) + b, \quad \phi_2(\mathbf{x}) = [1, x_1, \dots, x_D, x_1^2, x_1 x_2, \dots, x_D^2]
+$$
+
+- **Dimensionality Explosion**: Expanding 42 features into degree-2 monomials creates:
+
+$$
+M = \frac{(42 + 2)!}{42! \, 2!} - 1 = \frac{44 \times 43}{2} - 1 = 945 \text{ interaction terms}
+$$
+
+- **Why It Improved Over Linear OLS ($R^2: 0.6643 \to 0.7376$)**:
   The polynomial expansion explicitly created cross-terms like `ram * has_ssd`, `weight * inches`, and `ppi * company_Apple`. This empirically proves that **pricing non-linearities in this dataset are largely driven by pairwise feature interactions**.
-* **Why It Could Not Match Ensembles**:
+- **Why It Could Not Match Ensembles**:
   With 945 features and only 994 training instances, the design matrix $\Phi$ suffers from near-collinearity and high variance. Furthermore, degree-2 polynomials cannot capture 3-way or 4-way conditional conjunctions without severe numerical explosion.
 
 ---
 
 ### 4. K-Nearest Neighbors Regressor (Tuned) — Rank 4
-* **Mathematical Objective**:
-  $$\hat{y}(\mathbf{x}) = \frac{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i y_i}{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i}, \quad w_i = \frac{1}{d(\mathbf{x}, \mathbf{x}_i)}$$
-* **Hyperparameters**: `n_neighbors=5`, `weights='distance'`, `metric='manhattan'`.
-* **Why It Reached $R^2 = 0.7118$**:
+- **Mathematical Objective**:
+
+$$
+\hat{y}(\mathbf{x}) = \frac{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i y_i}{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i}, \quad w_i = \frac{1}{d(\mathbf{x}, \mathbf{x}_i)}
+$$
+
+- **Hyperparameters**: `n_neighbors=5`, `weights='distance'`, `metric='manhattan'`.
+- **Why It Reached $R^2 = 0.7118$**:
   Laptops are manufactured in standardized product lines (e.g., Dell Inspiron 15, Lenovo ThinkPad T-series, Asus ROG). An unknown laptop's price is heavily determined by the prices of existing laptops from the exact same or adjacent product line.
-* **Why It Underperformed Tree Ensembles**:
+- **Why It Underperformed Tree Ensembles**:
   1. **Curse of Dimensionality in 42-D Space**: Distance metrics degrade in high dimensions. Even with Manhattan distance, the 31 sparse one-hot dummy variables dominate the metric space, causing laptops with identical hardware but different brand flags to appear artificially distant.
   2. **Boundary Extrapolation Failure**: KNN cannot extrapolate beyond the maximum price in the neighborhood, causing severe plateauing in the ultra-high tier.
 
 ---
 
 ### 5. Decision Tree Regressor (Tuned) — Rank 5
-* **Mathematical Objective**:
-  Recursive binary partitioning minimizing within-node variance:
-  $$Q_m(T) = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \bar{y}_m)^2$$
-* **Hyperparameters**: `max_depth=8`, `min_samples_split=6`, `min_samples_leaf=3`.
-* **Why It Reached $R^2 = 0.7010$**:
+- **Mathematical Objective**: Recursive binary partitioning minimizing within-node variance:
+
+$$
+Q_m(T) = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \bar{y}_m)^2
+$$
+
+- **Hyperparameters**: `max_depth=8`, `min_samples_split=6`, `min_samples_leaf=3`.
+- **Why It Reached $R^2 = 0.7010$**:
   It natively captured non-linear partitions and form-factor interactions without requiring feature scaling or polynomial expansion.
-* **Why It Failed Against Ensembles**:
+- **Why It Failed Against Ensembles**:
   A single tree suffers from **high estimator variance**. Greedy split selection at early levels (e.g., splitting on `ram <= 8` at root) commits the entire downstream hierarchy to suboptimal sub-trees. Without bootstrap aggregation, a single Decision Tree overfits to local noise in small brands.
 
 ---
 
 ### 6, 7, 8, 9. The Linear Model Family (ElasticNet, Ridge, Lasso, OLS) — Ranks 6 to 9
-* **Mathematical Objectives**:
-  * **OLS**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2$ ($R^2 = 0.6643$)
-  * **Ridge**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \lambda \|\mathbf{w}\|_2^2$ ($R^2 = 0.6652$)
-  * **Lasso**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \alpha \|\mathbf{w}\|_1$ ($R^2 = 0.6644$)
-  * **ElasticNet**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \alpha \rho \|\mathbf{w}\|_1 + \frac{\alpha(1-\rho)}{2} \|\mathbf{w}\|_2^2$ ($R^2 = 0.6694$)
-* **The Shared ~0.664 Ceiling**:
+- **Mathematical Objectives**:
+  - **OLS**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2$ ($R^2 = 0.6643$)
+  - **Ridge**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \lambda \|\mathbf{w}\|_2^2$ ($R^2 = 0.6652$)
+  - **Lasso**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \alpha \|\mathbf{w}\|_1$ ($R^2 = 0.6644$)
+  - **ElasticNet**: $\min_{\mathbf{w}} \|\mathbf{y} - \mathbf{X}\mathbf{w}\|_2^2 + \alpha \rho \|\mathbf{w}\|_1 + \frac{\alpha(1-\rho)}{2} \|\mathbf{w}\|_2^2$ ($R^2 = 0.6694$)
+- **The Shared ~0.664 Ceiling**:
   Notice that OLS, Lasso, Ridge, and ElasticNet all cluster tightly between $R^2 = 0.6643$ and $0.6694$. This reveals a fundamental mathematical barrier:
   1. **The Additivity Assumption**: Linear models enforce $\hat{y} = w_0 + w_1 x_1 + \dots + w_{42} x_{42}$. They assume adding 8 GB of RAM produces the exact same price delta regardless of whether the machine is a ₹20,000 plastic netbook or a ₹200,000 precision workstation.
   2. **Severe Multicollinearity**: `ppi`, `res_width`, `res_height`, and `inches` are mathematically collinear. Furthermore, `company_Apple` co-occurs 100% with `opsys_macOS`. This inflates coefficient variance:
-     $$\text{Var}(\hat{\mathbf{w}}) = \sigma^2 (\mathbf{X}^T \mathbf{X})^{-1}$$
+
+$$
+\text{Var}(\hat{\mathbf{w}}) = \sigma^2 (\mathbf{X}^T \mathbf{X})^{-1}
+$$
+
      While Ridge and ElasticNet stabilized matrix conditioning, shrinkage cannot synthesize missing interaction effects.
 
 ---
 
 ### 10. Support Vector Regressor (SVR, Tuned) — Rank 10
-* **Mathematical Objective**:
-  $$\min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^N (\xi_i + \xi_i^*)$$
+- **Mathematical Objective**:
+
+$$
+\min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^N (\xi_i + \xi_i^*)
+$$
+
   subject to:
-  $$y_i - (\mathbf{w}^T \phi(\mathbf{x}_i) + b) \le \epsilon + \xi_i, \quad (\mathbf{w}^T \phi(\mathbf{x}_i) + b) - y_i \le \epsilon + \xi_i^*$$
-* **Hyperparameters**: `kernel='rbf'`, `C=50000`, `epsilon=1500`, `gamma='scale'`.
-* **Why It Tied for Last ($R^2 = 0.6643$, RMSE = ₹19,875.52)**:
+
+$$
+y_i - (\mathbf{w}^T \phi(\mathbf{x}_i) + b) \le \epsilon + \xi_i, \quad (\mathbf{w}^T \phi(\mathbf{x}_i) + b) - y_i \le \epsilon + \xi_i^*
+$$
+
+- **Hyperparameters**: `kernel='rbf'`, `C=50000`, `epsilon=1500`, `gamma='scale'`.
+- **Why It Tied for Last ($R^2 = 0.6643$, RMSE = ₹19,875.52)**:
   1. **RBF Metric Distortion on Sparse Binary Vectors**: The RBF kernel computes:
-     $$K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma \|\mathbf{x}_i - \mathbf{x}_j\|^2)$$
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma \|\mathbf{x}_i - \mathbf{x}_j\|^2)
+$$
+
      Euclidean distance across 31 sparse one-hot dummy variables is poorly scaled. Two laptops differing by 3 dummy brands accumulate large squared distances ($\Delta d^2 = 2$), compressing the kernel similarity toward zero and destroying gradient propagation.
   2. **Symmetric $\epsilon$-Insensitive Tube**: The symmetric tube penalizes over-predictions and under-predictions equally, struggling with the severe right-skewness of laptop luxury pricing.
 

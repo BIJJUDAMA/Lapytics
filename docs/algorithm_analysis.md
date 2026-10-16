@@ -52,13 +52,24 @@ Our 42 features present an extreme contrast in scale and sparsity:
 
 #### 2. Exact Mathematical Collinearity
 Display metrics in the dataset are deterministically coupled:
-$$\text{ppi} = \frac{\sqrt{\text{res\_width}^2 + \text{res\_height}^2}}{\text{inches}}$$
+
+$$
+\text{ppi} = \frac{\sqrt{\text{res\_width}^2 + \text{res\_height}^2}}{\text{inches}}
+$$
+
 Simultaneously including `res_width`, `res_height`, `inches`, and `ppi` introduces exact non-linear multicollinearity. Additionally, `company_Apple` and `opsys_macOS` have a $1.00$ Pearson correlation coefficient (deterministic co-occurrence).
 
 #### 3. Multiplicative & Boolean Conjunctive Pricing Rules
 In commercial consumer electronics, retail pricing does **not** scale as an additive linear sum. It is governed by **multiplicative brand premiums** and **boolean conjunctions**:
-$$\text{Flagship Tier} \iff (\text{RAM} \ge 16) \land (\text{has\_ssd} = 1) \land (\text{typename\_Gaming} = 1 \lor \text{company\_Apple} = 1)$$
-$$\text{Budget Tier} \iff (\text{RAM} \le 4) \lor (\text{has\_hdd} = 1 \land \text{has\_ssd} = 0)$$
+
+$$
+\text{Flagship Tier} \iff (\text{RAM} \ge 16) \land (\text{has\_ssd} = 1) \land (\text{typename\_Gaming} = 1 \lor \text{company\_Apple} = 1)
+$$
+
+$$
+\text{Budget Tier} \iff (\text{RAM} \le 4) \lor (\text{has\_hdd} = 1 \land \text{has\_ssd} = 0)
+$$
+
 Adding 8 GB of RAM to an entry-level plastic netbook increases price by ~₹3,000, whereas adding 8 GB of RAM to an Apple MacBook Pro increases price by ~₹22,000. This is a non-linear interaction effect.
 
 #### 4. Ambiguous Boundaries Between Adjacent Classes
@@ -90,21 +101,30 @@ Evaluated on $N_{\text{test}} = 249$ holdout test records (80/20 stratified spli
 ### In-Depth Rationale: Why Each Regression Algorithm Performed as Observed
 
 #### 1. Gradient Boosting Regressor (Rank 1 — Winner, $R^2 = 0.8121$)
-* **Mathematical Formulation**:
-  $$f_M(\mathbf{x}) = f_0(\mathbf{x}) + \sum_{m=1}^M \gamma_m h_m(\mathbf{x}), \quad h_m = \arg\min_h \sum_{i=1}^N \left( r_{im} - h(\mathbf{x}_i) \right)^2$$
+- **Mathematical Formulation**:
+
+$$
+f_M(\mathbf{x}) = f_0(\mathbf{x}) + \sum_{m=1}^M \gamma_m h_m(\mathbf{x}), \quad h_m = \arg\min_h \sum_{i=1}^N \left( r_{im} - h(\mathbf{x}_i) \right)^2
+$$
+
   where pseudo-residuals are $r_{im} = -\left[\frac{\partial L(y_i, f(\mathbf{x}_i))}{\partial f(\mathbf{x}_i)}\right]_{f=f_{m-1}}$.
-* **Why It Won**:
+
+- **Why It Won**:
   1. **Adaptive Residual Correction**: The base shallow trees fit the global trend (RAM, storage, weight). Subsequent boosting iterations explicitly targeted the **residuals**—specifically learning the localized pricing premiums of gaming GPUs, high PPI screens, and premium brand marks.
   2. **Controlled Depth (`max_depth=4`)**: Shallow trees prevented memorization of individual outlier listings while enabling up to 4-way non-linear interaction terms (`ram` $\times$ `has_ssd` $\times$ `company_Apple` $\times$ `ppi`).
   3. **Shrinkage & Stochastic Subsampling (`learning_rate=0.08`, `subsample=0.85`)**: Adding randomness at each step mitigated overfitting to the small training sample ($N=994$), achieving the highest cross-validation stability ($\pm 0.0255$).
 
 #### 2. Random Forest Regressor (Rank 2 — Runner-Up, $R^2 = 0.8094$)
-* **Mathematical Formulation**:
-  $$\hat{f}_{\text{RF}}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^B T_b(\mathbf{x}; \Theta_b)$$
-* **Why It Succeeded**:
+- **Mathematical Formulation**:
+
+$$
+\hat{f}_{\text{RF}}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^B T_b(\mathbf{x}; \Theta_b)
+$$
+
+- **Why It Succeeded**:
   1. **Lowest Test MAE (₹10,485.22)**: Produced the lowest median prediction error across mainstream price brackets (₹30,000 to ₹90,000).
   2. **Bootstrap Resampling Resilience**: Because each tree is fitted on a bootstrap sample $\mathcal{D}_b$ with random feature subsets ($\sqrt{42} \approx 6$), extreme price outliers in high-end workstations did not distort global split thresholds.
-* **Why It Finished 2nd to Gradient Boosting**:
+- **Why It Finished 2nd to Gradient Boosting**:
   Trees in a Random Forest are independent and cannot adaptively correct past errors. Furthermore, Random Forest predictions are bounded by the minimum and maximum leaf means observed in the training data, leading to systematic under-prediction of ultra-luxury flagships (>₹200,000).
 
 #### 3. Polynomial Regression Degree 2 (Rank 3, $R^2 = 0.7376$)
@@ -160,62 +180,88 @@ Evaluated on $N_{\text{test}} = 249$ holdout test records across the 4 balanced 
 ### In-Depth Rationale: Why Each Classifier Performed as Observed
 
 #### 1. Random Forest Classifier (Rank 1 — Winner, Accuracy = 71.08%, $F_1 = 0.7119$)
-* **Confusion Matrix**:
-  $$\begin{pmatrix} 
-  \mathbf{54} & 8 & 0 & 0 \\
-  12 & \mathbf{36} & 15 & 0 \\
-  1 & 11 & \mathbf{43} & 7 \\
-  0 & 0 & 18 & \mathbf{44}
-  \end{pmatrix}$$
-* **Forensic Analysis**:
-  * **Zero Catastrophic Errors**: 0 Budget laptops were predicted as Flagship, and 0 Flagships were predicted as Budget.
-  * **Handling Ambiguous Boundaries**: The only misclassifications occurred between adjacent tiers (e.g., 15 Mid-range machines predicted as Premium, 11 Premium machines predicted as Mid-range).
-* **Why It Won**:
+- **Confusion Matrix ($N = 249$)**:
+
+$$
+\begin{pmatrix} 
+54 & 8 & 0 & 0 \\
+12 & 36 & 15 & 0 \\
+1 & 11 & 43 & 7 \\
+0 & 0 & 18 & 44
+\end{pmatrix}
+$$
+
+| Actual \ Predicted | Budget (0) | Mid-range (1) | Premium (2) | Flagship (3) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Budget (0)** | **54** | 8 | 0 | 0 |
+| **Mid-range (1)** | 12 | **36** | 15 | 0 |
+| **Premium (2)** | 1 | 11 | **43** | 7 |
+| **Flagship (3)** | 0 | 0 | 18 | **44** |
+
+- **Forensic Analysis**:
+  - **Zero Catastrophic Errors**: 0 Budget laptops were predicted as Flagship, and 0 Flagships were predicted as Budget.
+  - **Handling Ambiguous Boundaries**: The only misclassifications occurred between adjacent tiers (e.g., 15 Mid-range machines predicted as Premium, 11 Premium machines predicted as Mid-range).
+- **Why It Won**:
   Averaging 100 decorrelated trees with $\sqrt{42} \approx 6$ feature subsampling dampens variance along overlapping boundary regions, while individual tree branches natively capture multi-attribute boolean pricing rules.
 
 #### 2. Gradient Boosting Classifier (Rank 2, Accuracy = 69.88%, $F_1 = 0.6997$)
-* **Why It Succeeded**:
+- **Why It Succeeded**:
   Achieved the highest recall on Flagship laptops (**47 out of 62 = 75.8%**) by iteratively penalizing misclassified high-spec machines in its negative gradient step.
-* **Why It Finished Behind Random Forest**:
+- **Why It Finished Behind Random Forest**:
   Sequential boosting is more sensitive than bagging to noisy labels near the Mid-range / Premium boundary ($₹54,340$), occasionally overfitting ambiguous boundary instances.
 
 #### 3. Bagging Classifier (Rank 3, Accuracy = 69.88%, $F_1 = 0.6975$)
-* **Why It Tied Gradient Boosting**: Bootstrap aggregation of full decision trees substantially reduced variance compared to a single tree (Accuracy: $63.86\% \to 69.88\%$).
-* **Why Random Forest Beat It**: Because Bagging evaluates all 42 features at every node, dominant specs (`ram`, `weight`) were repeatedly selected near the root of every tree, creating higher tree-to-tree correlation ($\rho > 0$) than Random Forest.
+- **Why It Tied Gradient Boosting**: Bootstrap aggregation of full decision trees substantially reduced variance compared to a single tree (Accuracy: $63.86\% \to 69.88\%$).
+- **Why Random Forest Beat It**: Because Bagging evaluates all 42 features at every node, dominant specs (`ram`, `weight`) were repeatedly selected near the root of every tree, creating higher tree-to-tree correlation ($\rho > 0$) than Random Forest.
 
 #### 4. Support Vector Classifier (Rank 4, Accuracy = 69.08%, $F_1 = 0.6861$)
-* **Why It Outperformed Logistic Regression**: The non-linear RBF kernel mapped the 42 features into an infinite-dimensional space, enabling curved decision boundaries that effectively isolated compact clusters of high-end ultraportables.
+- **Why It Outperformed Logistic Regression**: The non-linear RBF kernel mapped the 42 features into an infinite-dimensional space, enabling curved decision boundaries that effectively isolated compact clusters of high-end ultraportables.
 
 #### 5. Multi-Layer Perceptron (Rank 5, Accuracy = 66.67%, $F_1 = 0.6667$)
-* **Why It Plateaued**: Fully connected feed-forward networks lack the axis-aligned splitting bias of decision trees. With only $N=994$ training instances and over 4,800 network weights, the MLP suffered from sample complexity limits.
+- **Why It Plateaued**: Fully connected feed-forward networks lack the axis-aligned splitting bias of decision trees. With only $N=994$ training instances and over 4,800 network weights, the MLP suffered from sample complexity limits.
 
 #### 6. Logistic Regression (Rank 6, Accuracy = 65.06%, $F_1 = 0.6440$)
-* **Why It Underperformed**: Forces hyperplanar decision boundaries: $\mathbf{w}_k^T \mathbf{x} + b_k = 0$. It cannot classify non-linear interactions without manual polynomial expansion, misclassifying 31 out of 63 Mid-range laptops.
+- **Why It Underperformed**: Forces hyperplanar decision boundaries: $\mathbf{w}_k^T \mathbf{x} + b_k = 0$. It cannot classify non-linear interactions without manual polynomial expansion, misclassifying 31 out of 63 Mid-range laptops.
 
 #### 7. AdaBoost Classifier (Rank 7, Accuracy = 64.66%, $F_1 = 0.6427$)
-* **The Exponential Loss Trap**: AdaBoost minimizes $L(y, f) = e^{-y f}$. On borderline machines with overlapping specs (e.g., priced at ₹54,000 vs ₹55,000), AdaBoost assigned exponentially growing weights to inherently noisy boundary points, causing subsequent stumps to overfit noise.
+- **The Exponential Loss Trap**: AdaBoost minimizes $L(y, f) = e^{-y f}$. On borderline machines with overlapping specs (e.g., priced at ₹54,000 vs ₹55,000), AdaBoost assigned exponentially growing weights to inherently noisy boundary points, causing subsequent stumps to overfit noise.
 
 #### 8. K-Nearest Neighbors Classifier (Rank 8, Accuracy = 64.66%, $F_1 = 0.6401$)
-* **Failure Mode**: In 42-dimensional space, the 7 nearest neighbors were geographically dispersed, pulling in laptops from adjacent price categories that shared only irrelevant dummy brand flags.
+- **Failure Mode**: In 42-dimensional space, the 7 nearest neighbors were geographically dispersed, pulling in laptops from adjacent price categories that shared only irrelevant dummy brand flags.
 
 #### 9. Decision Tree Classifier (Rank 9, Accuracy = 63.86%, $F_1 = 0.6155$)
-* **Catastrophic Mid-Tier Collapse**:
-  * Only **21 out of 62 Premium laptops** were correctly classified (33.9% recall!).
-  * High variance and greedy early splitting permanently diverted borderline machines down incorrect sub-trees.
+- **Catastrophic Mid-Tier Collapse**:
+  - Only **21 out of 62 Premium laptops** were correctly classified (33.9% recall!).
+  - High variance and greedy early splitting permanently diverted borderline machines down incorrect sub-trees.
 
 #### 10. Gaussian Naive Bayes (Rank 10 — Catastrophic Failure, Accuracy = 39.36%, $F_1 = 0.3216$)
-* **Confusion Matrix (The "Budget Black Hole")**:
-  $$\begin{pmatrix} 
-  \mathbf{62} & 0 & 0 & 0 \\
-  54 & \mathbf{8} & 0 & 1 \\
-  28 & 22 & \mathbf{2} & 10 \\
-  15 & 21 & 0 & \mathbf{26}
-  \end{pmatrix}$$
-* **Forensic Mathematical Autopsy**:
+- **Confusion Matrix (The "Budget Black Hole", $N = 249$)**:
+
+$$
+\begin{pmatrix} 
+62 & 0 & 0 & 0 \\
+54 & 8 & 0 & 1 \\
+28 & 22 & 2 & 10 \\
+15 & 21 & 0 & 26
+\end{pmatrix}
+$$
+
+| Actual \ Predicted | Budget (0) | Mid-range (1) | Premium (2) | Flagship (3) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Budget (0)** | **62** | 0 | 0 | 0 |
+| **Mid-range (1)** | 54 | **8** | 0 | 1 |
+| **Premium (2)** | 28 | 22 | **2** | 10 |
+| **Flagship (3)** | 15 | 21 | 0 | **26** |
+
+- **Forensic Mathematical Autopsy**:
   1. **Total Predicted as Budget**: $62 + 54 + 28 + 15 = \mathbf{159}$ laptops (**63.8% of the entire test set!**).
   2. **85.7% of Mid-range laptops** and **45.2% of Premium laptops** were dumped into Budget.
   3. **The Root Cause**: Naive Bayes assumes conditional independence:
-     $$P(\mathbf{X} \mid C_k) = \prod_{j=1}^{42} P(X_j \mid C_k)$$
+
+$$
+P(\mathbf{X} \mid C_k) = \prod_{j=1}^{42} P(X_j \mid C_k)
+$$
+
      Because `ppi`, `inches`, `res_width`, `res_height`, `ram`, and operating systems are heavily collinear, multiplying 42 non-independent Gaussian likelihoods compounded errors exponentially. Zero values in the 31 sparse dummy columns caused posterior probabilities to collapse into the high-density Budget class.
 
 ---
@@ -270,9 +316,13 @@ graph TD
 ### Forensic Breakdown of Clustering Linkage Mechanisms
 
 #### 1. Why K-Means and Ward Linkage Succeeded
-* Both K-Means and Ward’s agglomerative linkage optimize **minimum within-cluster variance**:
-  $$\min \sum_{k=1}^K \sum_{\mathbf{x} \in S_k} \|\mathbf{x} - \boldsymbol{\mu}_k\|^2 \quad \text{and} \quad \Delta ESS = \frac{n_A n_B}{n_A + n_B} \|\mathbf{m}_A - \mathbf{m}_B\|^2$$
-* In Ward’s linkage, merging two large clusters incurs a massive penalty proportional to $\frac{n_A n_B}{n_A + n_B}$. This mathematical resistance prevents runaway cluster growth and segments the market into 4 commercially actionable hardware cohorts.
+- Both K-Means and Ward’s agglomerative linkage optimize **minimum within-cluster variance**:
+
+$$
+\min \sum_{k=1}^K \sum_{\mathbf{x} \in S_k} \|\mathbf{x} - \boldsymbol{\mu}_k\|^2 \quad \text{and} \quad \Delta ESS = \frac{n_A n_B}{n_A + n_B} \|\mathbf{m}_A - \mathbf{m}_B\|^2
+$$
+
+- In Ward’s linkage, merging two large clusters incurs a massive penalty proportional to $\frac{n_A n_B}{n_A + n_B}$. This mathematical resistance prevents runaway cluster growth and segments the market into 4 commercially actionable hardware cohorts.
 
 #### 2. The Pathological Failures of Complete, Average, and Single Linkages
 * **Single Linkage Chaining Collapse**: Merges clusters based on minimum pairwise distance ($\min d(u,v)$). Because intermediate laptop configurations act as stepping stones along a continuous spectrum, single linkage sequentially "chains" all laptops into a single giant blob of 1,240 items and 3 outliers ($CH = 18.40$).

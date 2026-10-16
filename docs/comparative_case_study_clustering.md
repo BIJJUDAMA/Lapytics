@@ -70,10 +70,14 @@ graph TD
 ## 4. Deep-Dive Comparative Case Study: Algorithm by Algorithm
 
 ### 1. K-Means Partitioning — The Optimal Segmenter
-* **Mathematical Objective**:
-  $$\arg\min_{\mathbf{S}} \sum_{k=1}^K \sum_{\mathbf{x} \in S_k} \|\mathbf{x} - \boldsymbol{\mu}_k\|^2$$
+- **Mathematical Objective**:
+
+$$
+\arg\min_{\mathbf{S}} \sum_{k=1}^K \sum_{\mathbf{x} \in S_k} \|\mathbf{x} - \boldsymbol{\mu}_k\|^2
+$$
+
   where $\boldsymbol{\mu}_k = \frac{1}{|S_k|} \sum_{\mathbf{x} \in S_k} \mathbf{x}$.
-* **Why K-Means Succeeded on This Dataset**:
+- **Why K-Means Succeeded on This Dataset**:
   1. **Hyper-Spherical Clusters in $Z$-Score Space**: Standardizing continuous specs gives RAM, weight, display PPI, and storage equal variance. Laptop manufacturers design products around standardized component combinations (e.g., pairing 8 GB RAM with 256 GB SSD and a 1.7 kg chassis). These configurations naturally form dense, hyper-spherical groupings in Euclidean space.
   2. **Balanced Cluster Sizes**: Unlike density-based or min-distance hierarchical methods, K-Means Voronoi partitioning prevents any single cluster from monopolizing the entire sample, distributing the 1,243 laptops into realistic market volumes (9%, 31%, 45%, 15%).
   3. **High Calinski-Harabasz Index (91.26)**: Demonstrates high between-cluster variance relative to within-cluster dispersion.
@@ -81,56 +85,79 @@ graph TD
 ---
 
 ### 2. Agglomerative Hierarchical with Ward Linkage — The Hierarchical Winner
-* **Mathematical Objective**:
-  Merges cluster pair $(A, B)$ that minimizes the increase in total Error Sum of Squares ($ESS$):
-  $$\Delta ESS(A, B) = ESS(A \cup B) - ESS(A) - ESS(B) = \frac{n_A n_B}{n_A + n_B} \|\mathbf{m}_A - \mathbf{m}_B\|^2$$
-* **Update Formula (Lance-Williams Recurrence)**:
-  $$D(A \cup B, C) = \frac{n_A + n_C}{n_A + n_B + n_C} D(A, C) + \frac{n_B + n_C}{n_A + n_B + n_C} D(B, C) - \frac{n_C}{n_A + n_B + n_C} D(A, B)$$
-* **Why Ward Linkage Succeeded**:
+- **Mathematical Objective**: Merges cluster pair $(A, B)$ that minimizes the increase in total Error Sum of Squares ($ESS$):
+
+$$
+\Delta ESS(A, B) = ESS(A \cup B) - ESS(A) - ESS(B) = \frac{n_A n_B}{n_A + n_B} \|\mathbf{m}_A - \mathbf{m}_B\|^2
+$$
+
+- **Update Formula (Lance-Williams Recurrence)**:
+
+$$
+D(A \cup B, C) = \frac{n_A + n_C}{n_A + n_B + n_C} D(A, C) + \frac{n_B + n_C}{n_A + n_B + n_C} D(B, C) - \frac{n_C}{n_A + n_B + n_C} D(A, B)
+$$
+
+- **Why Ward Linkage Succeeded**:
   Ward’s objective is the exact hierarchical analogue to K-Means' variance minimization. Because the merge cost scales with $\frac{n_A n_B}{n_A + n_B}$, merging two large clusters incurs a massive penalty. This mathematical property **actively resists cluster monopolization**, resulting in 4 balanced, well-separated archetypes (11%, 29%, 43%, 17%) that closely mirror the K-Means partition.
 
 ---
 
 ### 3. Agglomerative Hierarchical with Complete Linkage — The Outlier Isolation Trap
-* **Mathematical Objective**:
-  $$D_{\text{complete}}(A, B) = \max_{\mathbf{u} \in A, \mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|$$
-* **Empirical Scores at $k=4$**:
-  * Silhouette Score: **0.6291** (Deceptively high!).
-  * Davies-Bouldin Index: **0.3291** (Deceptively low!).
-* **Forensic Breakdown of the Failure**:
+- **Mathematical Objective**:
+
+$$
+D_{\text{complete}}(A, B) = \max_{\mathbf{u} \in A, \mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|
+$$
+
+- **Empirical Scores at $k=4$**:
+  - Silhouette Score: **0.6291** (Deceptively high!).
+  - Davies-Bouldin Index: **0.3291** (Deceptively low!).
+- **Forensic Breakdown of the Failure**:
   Looking at cluster counts exposes complete degeneracy:
-  * **Cluster 0**: 1,233 laptops (**99.2% of the dataset**).
-  * **Cluster 1**: 5 laptops (0.4% — specialized multi-drive machines).
-  * **Cluster 2**: 3 laptops (0.2% — dual-storage 18.4" machines).
-  * **Cluster 3**: 2 laptops (0.2% — extreme 64 GB RAM workstations).
-* **The Mathematical Explanation**:
+  - **Cluster 0**: 1,233 laptops (**99.2% of the dataset**).
+  - **Cluster 1**: 5 laptops (0.4% — specialized multi-drive machines).
+  - **Cluster 2**: 3 laptops (0.2% — dual-storage 18.4" machines).
+  - **Cluster 3**: 2 laptops (0.2% — extreme 64 GB RAM workstations).
+- **The Mathematical Explanation**:
   Complete linkage measures distance by the **farthest pair of points**. In a 42-dimensional space containing extreme outliers (e.g., dual 1 TB SSD + 2 TB HDD, 18.4-inch display, 64 GB RAM), the distance from an outlier to any other point is enormous. Complete linkage repeatedly isolates these distant outliers into individual clusters of size 1, 2, or 3, leaving 99.2% of the commercial market unsegmented in Cluster 0.
-* **Why the Silhouette Score Lies**:
+- **Why the Silhouette Score Lies**:
   The Silhouette score for an isolated singleton cluster $i$ is:
-  $$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} = \frac{b(i) - 0}{b(i)} = 1.0$$
+
+$$
+s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} = \frac{b(i) - 0}{b(i)} = 1.0
+$$
+
   A few outliers with $s = 1.0$ artificially inflate the dataset average to 0.6291, despite the model failing to perform meaningful segmentation on 99% of the data.
 
 ---
 
 ### 4. Agglomerative Hierarchical with Average Linkage — The Centroid Dilution Trap
-* **Mathematical Objective**:
-  $$D_{\text{average}}(A, B) = \frac{1}{|A| |B|} \sum_{\mathbf{u} \in A} \sum_{\mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|$$
-* **Empirical Scores at $k=4$**:
-  * Silhouette: 0.6588, Davies-Bouldin: 0.2534.
-  * Cluster counts: 1,236 / 4 / 2 / 1 (99.4% in one cluster).
-* **Why It Failed**:
+- **Mathematical Objective**:
+
+$$
+D_{\text{average}}(A, B) = \frac{1}{|A| |B|} \sum_{\mathbf{u} \in A} \sum_{\mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|
+$$
+
+- **Empirical Scores at $k=4$**:
+  - Silhouette: 0.6588, Davies-Bouldin: 0.2534.
+  - Cluster counts: 1,236 / 4 / 2 / 1 (99.4% in one cluster).
+- **Why It Failed**:
   Like Complete linkage, Average linkage suffers from outlier absorption. When one cluster grows to over 1,000 observations, the average distance from a new point to this giant cluster becomes nearly identical to the distance to the dataset centroid. Consequently, normal laptops are continuously swallowed by the giant cluster, while extreme outliers remain isolated.
 
 ---
 
 ### 5. Agglomerative Hierarchical with Single Linkage — Total Chaining Collapse
-* **Mathematical Objective**:
-  $$D_{\text{single}}(A, B) = \min_{\mathbf{u} \in A, \mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|$$
-* **Empirical Scores at $k=4$**:
-  * Silhouette: **0.0820** (Lowest across all methods).
-  * Davies-Bouldin: **3.1200** (Worst across all methods).
-  * Calinski-Harabasz: **18.40** (Worst across all methods).
-* **The "Chaining Effect" Breakdown**:
+- **Mathematical Objective**:
+
+$$
+D_{\text{single}}(A, B) = \min_{\mathbf{u} \in A, \mathbf{v} \in B} \|\mathbf{u} - \mathbf{v}\|
+$$
+
+- **Empirical Scores at $k=4$**:
+  - Silhouette: **0.0820** (Lowest across all methods).
+  - Davies-Bouldin: **3.1200** (Worst across all methods).
+  - Calinski-Harabasz: **18.40** (Worst across all methods).
+- **The "Chaining Effect" Breakdown**:
   Single linkage merges clusters based on the **nearest single pair of points**. Because hardware specifications exist on a continuous spectrum (e.g., an intermediate laptop with 8 GB RAM, 1.8 kg, and 256 GB SSD bridges the gap between a 6 GB/2.2 kg laptop and a 16 GB/1.5 kg laptop), intermediate points act as stepping stones. Single linkage creates a continuous "chain" that connects the entire dataset into a single monolithic cluster of 1,240 items, isolating only 3 extreme anomalies.
 
 ---
@@ -175,7 +202,11 @@ graph LR
 * **Visualization Role**: Demonstrates global separation between the 4 clusters along continuous hardware axes (e.g., PC1 clearly separates Budget HDD from Workstation Dual-Storage).
 
 ### 2. t-Distributed Stochastic Neighbor Embedding (t-SNE) — Local Non-Linear Manifold
-* **Formulation**: Minimizes the Kullback-Leibler divergence between high-dimensional joint probabilities $p_{ij}$ and low-dimensional Student-$t$ probabilities $q_{ij}$:
-  $$KL(P \parallel Q) = \sum_{i \ne j} p_{ij} \log \frac{p_{ij}}{q_{ij}}, \quad q_{ij} = \frac{(1 + \|\mathbf{y}_i - \mathbf{y}_j\|^2)^{-1}}{\sum_{k \ne l} (1 + \|\mathbf{y}_k - \mathbf{y}_l\|^2)^{-1}}$$
-* **Hyperparameters**: `perplexity=30`, `n_iter=1000`, `init='pca'`, `random_state=42`.
+- **Formulation**: Minimizes the Kullback-Leibler divergence between high-dimensional joint probabilities $p_{ij}$ and low-dimensional Student-$t$ probabilities $q_{ij}$:
+
+$$
+KL(P \parallel Q) = \sum_{i \ne j} p_{ij} \log \frac{p_{ij}}{q_{ij}}, \quad q_{ij} = \frac{(1 + \|\mathbf{y}_i - \mathbf{y}_j\|^2)^{-1}}{\sum_{k \ne l} (1 + \|\mathbf{y}_k - \mathbf{y}_l\|^2)^{-1}}
+$$
+
+- **Hyperparameters**: `perplexity=30`, `n_iter=1000`, `init='pca'`, `random_state=42`.
 * **Visualization Role**: Resolves local non-linear neighborhood structures, revealing tight, discrete "islands" for Cluster 0 (Ultraportables) and Cluster 3 (Gaming/Workstation) that overlap in linear PCA projections.
