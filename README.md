@@ -65,7 +65,7 @@ A production-quality, interactive multi-page Streamlit web application providing
   - Discovers latent laptop segments using K-Means and Agglomerative Hierarchical Clustering.
   - Zero target leakage: strictly operates on the 42 intrinsic hardware features without `price` or `price_category`.
   - 2D interactive PCA and t-SNE scatter plots with hover inspection.
-  - Elbow curves, Silhouette scores, Davies-Bouldin, and Calinski-Harabasz metrics across cluster counts ($k=2..10$).
+  - Elbow curves, Silhouette scores, Davies-Bouldin, and Calinski-Harabasz metrics across cluster counts (k = 2 to 10).
   - Automated descriptive summaries for discovered clusters.
 - **Model Laboratory**:
   - Full leaderboard benchmarks across all three ML tracks.
@@ -218,15 +218,15 @@ The test suite validates:
 
 Unsupervised market segmentation is performed strictly on the 42 intrinsic hardware features with zero target leakage (`price` and `price_category` excluded).
 
-#### Algorithm & Linkage Comparison ($k=4$)
-| Method / Linkage | Clusters ($k$) | Silhouette Score (↑) | Davies-Bouldin Index (↓) | Calinski-Harabasz Index (↑) |
+#### Algorithm & Linkage Comparison (k = 4)
+| Method / Linkage | Clusters (k) | Silhouette Score (↑) | Davies-Bouldin Index (↓) | Calinski-Harabasz Index (↑) |
 | :--- | :---: | :---: | :---: | :---: |
 | **K-Means (Partitioning)** | 4 | 0.1049 | 2.4182 | 91.26 |
 | **Agglomerative (Ward Linkage)** | 4 | 0.1150 | 2.4929 | 82.14 |
 | **Agglomerative (Complete Linkage)** | 4 | 0.6291 | 0.3291 | 42.59 |
 | **Agglomerative (Average Linkage)** | 4 | 0.6588 | 0.2534 | 34.50 |
 
-#### Discovered Hardware Archetype Profiles ($k=4$, K-Means)
+#### Discovered Hardware Archetype Profiles (k = 4, K-Means)
 | Cluster | Share | Count | Avg RAM | Avg Weight | Avg Storage | SSD % | Primary Archetype |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
 | **0** | 9.1% | 113 | 12.6 GB | 1.54 kg | 495 GB | 88.5% | Premium Ultraportable / High-PPI (Touchscreen & Retina) |

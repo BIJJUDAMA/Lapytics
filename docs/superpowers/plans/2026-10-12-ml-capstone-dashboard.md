@@ -804,9 +804,9 @@ In `pages/3_Laptop_Clustering.py`:
 - Prominent statement and code guarantee: **Zero Target Leakage** — Clustering is performed exclusively on the 42 hardware feature columns without `price` or `price_category`.
 - Algorithm & Cluster Selection:
   - Choose between K-Means and Agglomerative Hierarchical Clustering.
-  - Select number of clusters $k$ (2 to 6).
+  - Select number of clusters k (2 to 6).
 - Evaluation & Diagnostics:
-  - Elbow Curve (Inertia vs $k$)
+  - Elbow Curve (Inertia vs k)
   - Silhouette Score curve
   - Davies-Bouldin Index (lower is better) & Calinski-Harabasz Index (higher is better)
   - Hierarchical linkage comparison (Ward vs Complete vs Average)
@@ -872,7 +872,7 @@ In `pages/4_Model_Laboratory.py`:
     - Confusion matrices for all evaluated models.
     - Class balance analysis.
   - **Tab 3: Clustering Analysis**:
-    - Diagnostic score comparison table across $k=2..6$.
+    - Diagnostic score comparison table across k = 2 to 6.
     - Linkage evaluation for hierarchical clustering.
     - Cluster silhouette distribution.
   - **Tab 4: Provenance & Data Integrity**:
